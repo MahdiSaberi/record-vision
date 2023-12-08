@@ -3,6 +3,7 @@ package com.data.model.dto;
 import com.data.model.DeadlineStatus;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
 import com.github.eloyzone.jalalicalendar.JalaliDateFormatter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,6 +14,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EventDto {
+
     private Integer id;
     private Integer day;
     private Integer month;

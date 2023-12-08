@@ -3,6 +3,7 @@ package com.data.model;
 import com.github.eloyzone.jalalicalendar.DateConverter;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
 import com.github.eloyzone.jalalicalendar.JalaliDateFormatter;
+import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 import lombok.extern.jackson.Jacksonized;
 
@@ -15,7 +16,7 @@ import java.time.LocalDate;
 @Builder
 @Jacksonized
 public class Event {
-
+    @Schema(hidden = true)
     private int id;
     // primer date
     private Integer day;
@@ -23,6 +24,7 @@ public class Event {
     private Integer year;
 
     private Vision vision;
+    @Schema(hidden = true)
     private DeadlineStatus deadlineStatus = DeadlineStatus.UNFINISHED;
 
     public String primerStringDate() {

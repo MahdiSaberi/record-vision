@@ -1,5 +1,6 @@
 package com.data.service;
 
+import com.data.model.DeadlineStatus;
 import com.data.model.Event;
 import com.data.model.dto.EventDto;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -29,6 +30,7 @@ public class EventService {
     public boolean save(Event event) {
         try {
             event.setId(generateId());
+            event.setDeadlineStatus(DeadlineStatus.UNFINISHED);
             String eventJson = mapper.writeValueAsString(event);
             FileWriter fileWriter;
             fileWriter = new FileWriter(getDbDirectory().toFile(), true);
@@ -163,6 +165,7 @@ public class EventService {
         while ((json = reader.readLine()) != null) {
             Event event = mapper.readValue(json, Event.class);
             if (event.getId() == id) {
+                reader.close();
                 return event;
             }
         }

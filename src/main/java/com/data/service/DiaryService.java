@@ -94,9 +94,10 @@ public class DiaryService {
         return goneDays;
     }
 
-    @Scheduled(fixedDelay = 10000L)
+    @Scheduled(fixedRate = 60000)
     public void checkDeadline() {
         try {
+            log.info("Checking Deadlines");
             List<EventDto> events = eventService.getAll();
             List<EventDto> unfinishedEvents = events.stream().filter(eventDto -> eventDto.getDeadlineStatus() == DeadlineStatus.UNFINISHED).toList();
             for (EventDto unfinishedEvent : unfinishedEvents) {
