@@ -1,17 +1,24 @@
 package com.data.service;
 
+import com.data.model.DeadlineStatus;
 import com.data.model.Event;
 import com.data.model.JalaliDateModel;
 import com.data.model.Vision;
+import com.data.model.dto.EventDto;
+import com.data.model.dto.VisionDto;
 import com.data.util.JalaliDateUtil;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
+@Slf4j
 public class DiaryService {
 
     private final EventService eventService;
@@ -85,5 +92,29 @@ public class DiaryService {
             }
         } while (startDay != stopDay || startMonth != stopMonth || startYear != stopYear);
         return goneDays;
+    }
+
+    @Scheduled(fixedDelay = 10000L)
+    public void checkDeadline() {
+        try {
+            List<EventDto> events = eventService.getAll();
+            List<EventDto> unfinishedEvents = events.stream().filter(eventDto -> eventDto.getDeadlineStatus() == DeadlineStatus.UNFINISHED).toList();
+            for (EventDto unfinishedEvent : unfinishedEvents) {
+                JalaliDateModel nowDate = JalaliDateUtil.getModel(JalaliDateUtil.convertLocalToJalali(LocalDate.now()));
+                JalaliDateModel targetDate = JalaliDateUtil.getModel(unfinishedEvent.targetJalaliDate());
+                if (nowDate.getDay() >= targetDate.getDay() && nowDate.getMonth() >= targetDate.getMonth() && nowDate.getYear() >= targetDate.getYear()) {
+                    VisionDto visionDto = unfinishedEvent.getVision();
+                    Vision vision = new Vision(visionDto.getDay(), visionDto.getMonth(), visionDto.getYear(), visionDto.getGrouping());
+                    eventService.update(new Event(unfinishedEvent.getId(),
+                            unfinishedEvent.getDay(),
+                            unfinishedEvent.getMonth(),
+                            unfinishedEvent.getYear(),
+                            vision,
+                            DeadlineStatus.ARRIVED));
+                }
+            }
+        } catch (Exception exception) {
+            log.info("Database is busy; It's okay =)");
+        }
     }
 }

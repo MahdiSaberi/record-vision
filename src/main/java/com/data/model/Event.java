@@ -23,6 +23,7 @@ public class Event {
     private Integer year;
 
     private Vision vision;
+    private DeadlineStatus deadlineStatus;
 
     public String primerStringDate() {
         JalaliDateFormatter formatter = new JalaliDateFormatter("dd MM yyyy");

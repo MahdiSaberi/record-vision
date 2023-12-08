@@ -32,7 +32,7 @@ public class MainController {
     }
 
     @GetMapping("/getEvents")
-    public ResponseEntity<List<EventDto>> getEvents() throws IOException {
+    public ResponseEntity<List<EventDto>> getEvents() {
         return ResponseEntity.ok(eventService.getAll());
     }
 

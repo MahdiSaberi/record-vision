@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -41,6 +42,42 @@ public class EventService {
             return false;
         }
 
+    }
+
+    public boolean update(Event event) {
+        int id = event.getId();
+        if (id == 0) {
+            save(event);
+            return false;
+        } else {
+            Path path = getDbDirectory();
+            try {
+                String jsonEvent = mapper.writeValueAsString(event);
+                List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
+                lines.set(getLineNumberByEventId(id) - 1, jsonEvent);
+                Files.write(path, lines, StandardCharsets.UTF_8);
+                return true;
+            }catch (IOException exception){
+                return false;
+            }
+        }
+    }
+
+    private int getLineNumberByEventId(Integer eventId) {
+        String searchWord = "\"id\":" + eventId + ",";
+        int lineCount = 0;
+
+        try (BufferedReader br = new BufferedReader(new FileReader(getDbDirectory().toFile()))) {
+            String line;
+            while ((line = br.readLine()) != null) {
+                if (line.contains(searchWord)) {
+                    lineCount++;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return lineCount;
     }
 
     private int generateId() throws IOException {
@@ -99,20 +136,25 @@ public class EventService {
         return tempFile.renameTo(getDbDirectory().toFile());
     }
 
-    public List<EventDto> getAll() throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
-        String json;
-        List<EventDto> events = new ArrayList<>();
-        while ((json = reader.readLine()) != null) {
-            try {
-                EventDto event = readEventFromJson(json);
-                events.add(event);
-            } catch (Exception exception) {
-                System.out.println("null");
+    public List<EventDto> getAll() {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
+            String json;
+            List<EventDto> events = new ArrayList<>();
+            while ((json = reader.readLine()) != null) {
+                try {
+                    EventDto event = readEventFromJson(json);
+                    events.add(event);
+                } catch (Exception exception) {
+                    System.out.println("null");
+                }
             }
+            reader.close();
+            return events.stream().filter(Objects::nonNull).toList();
+        } catch (IOException exception) {
+            log.error(exception.getMessage());
+            return null;
         }
-        reader.close();
-        return events.stream().filter(Objects::nonNull).toList();
     }
 
     public Event getById(Integer id) throws IOException {
