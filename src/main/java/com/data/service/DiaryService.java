@@ -40,13 +40,22 @@ public class DiaryService {
         Vision vision = event.getVision();
         Integer grouping = vision.getGrouping();
         JalaliDate startDate = event.primerJalaliDate();
-        JalaliDate stopDate = JalaliDateUtil.convertLocalToJalali(LocalDate.now());
-        Integer goneDays = subtractionDates(startDate, stopDate);
-        int numberOfGrouping = (goneDays / grouping) + 1;
-        int dayOfGrouping = goneDays % grouping;
-        int daysToEndOfGrouping = grouping - dayOfGrouping;
-        int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-        return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays};
+        JalaliDate nowDate = JalaliDateUtil.convertLocalToJalali(LocalDate.now());
+        Integer goneDays = subtractionDates(startDate, nowDate);
+        if(grouping != 0) {
+            int numberOfGrouping = (goneDays / grouping) + 1;
+            int dayOfGrouping = goneDays % grouping;
+
+            int daysToEndOfGrouping = grouping - dayOfGrouping;
+            int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
+            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays};
+        }else {
+            int numberOfGrouping = 1;
+            int dayOfGrouping = 0;
+            int daysToEndOfGrouping = 0;
+            int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
+            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays};
+        }
     }
 
     public int calculateRemainingDays(JalaliDate targetDate) {
@@ -127,8 +136,7 @@ public class DiaryService {
                                 event.getYear(),
                                 vision,
                                 DeadlineStatus.ARRIVED));
-                    }
-                    else {
+                    } else {
                         ModelMapper modelMapper = new ModelMapper();
                         Event unfinishedEvent = modelMapper.map(event, Event.class);
                         newList.add(unfinishedEvent);
