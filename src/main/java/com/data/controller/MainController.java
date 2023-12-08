@@ -34,10 +34,9 @@ public class MainController {
 
     @GetMapping("/getEvents")
     public ResponseEntity<List<EventDto>> getEvents(@RequestParam StatusMode status) {
-        if(status == StatusMode.ALL){
+        if (status == StatusMode.ALL) {
             return ResponseEntity.ok(eventService.getAll());
-        }
-        else{
+        } else {
             return ResponseEntity.ok(eventService.getAll().stream().filter(event -> event.getDeadlineStatus().name().equals(status.name())).toList());
         }
     }
@@ -59,7 +58,8 @@ public class MainController {
                 "شماره دسته بندی: " + integers[0] + "\n" +
                         "روزشمار این دسته بندی: " + integers[1] + "\n" +
                         " روز تا پایان این دسته بندی: " + integers[2] + "\n" +
-                        "روز تا چشم انداز: " + integers[3]);
+                        "روز تا چشم انداز: " + integers[3] + "\n" +
+                        "روز گذشته: " + integers[4]);
     }
 
     @GetMapping("/isLeapYear")

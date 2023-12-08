@@ -45,16 +45,17 @@ public class DiaryService {
         if(grouping != 0) {
             int numberOfGrouping = (goneDays / grouping) + 1;
             int dayOfGrouping = goneDays % grouping;
-
             int daysToEndOfGrouping = grouping - dayOfGrouping;
             int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays};
+            long daysLeft = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysLeft};
         }else {
             int numberOfGrouping = 1;
             int dayOfGrouping = 0;
             int daysToEndOfGrouping = 0;
             int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays};
+            long daysLeft = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysLeft};
         }
     }
 

@@ -28,7 +28,7 @@ public class Event {
     private DeadlineStatus deadlineStatus = DeadlineStatus.UNFINISHED;
 
     public String primerStringDate() {
-        JalaliDateFormatter formatter = new JalaliDateFormatter("dd MM yyyy");
+        JalaliDateFormatter formatter = new JalaliDateFormatter("dd mm yyyy");
         JalaliDate jalaliDate;
         if ((day == null && month == null && year == null) || (day == 0 && month == 0 && year == 0)) {
             DateConverter dateConverter = new DateConverter();
