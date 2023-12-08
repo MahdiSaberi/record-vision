@@ -7,14 +7,21 @@ import com.data.model.Vision;
 import com.data.model.dto.EventDto;
 import com.data.model.dto.VisionDto;
 import com.data.util.JalaliDateUtil;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -99,23 +106,56 @@ public class DiaryService {
         try {
             log.info("Checking Deadlines");
             List<EventDto> events = eventService.getAll();
-            List<EventDto> unfinishedEvents = events.stream().filter(eventDto -> eventDto.getDeadlineStatus() == DeadlineStatus.UNFINISHED).toList();
-            for (EventDto unfinishedEvent : unfinishedEvents) {
+            List<Event> newList = new ArrayList<>();
+            for (EventDto event : events) {
+                JalaliDateModel primerDate = JalaliDateUtil.getModel(event.primerJalaliDate());
                 JalaliDateModel nowDate = JalaliDateUtil.getModel(JalaliDateUtil.convertLocalToJalali(LocalDate.now()));
-                JalaliDateModel targetDate = JalaliDateUtil.getModel(unfinishedEvent.targetJalaliDate());
-                if (nowDate.getDay() >= targetDate.getDay() && nowDate.getMonth() >= targetDate.getMonth() && nowDate.getYear() >= targetDate.getYear()) {
-                    VisionDto visionDto = unfinishedEvent.getVision();
-                    Vision vision = new Vision(visionDto.getDay(), visionDto.getMonth(), visionDto.getYear(), visionDto.getGrouping());
-                    eventService.update(new Event(unfinishedEvent.getId(),
-                            unfinishedEvent.getDay(),
-                            unfinishedEvent.getMonth(),
-                            unfinishedEvent.getYear(),
-                            vision,
-                            DeadlineStatus.ARRIVED));
+                JalaliDateModel targetDate = JalaliDateUtil.getModel(event.getVision().targetJalaliDate());
+                if (event.getDeadlineStatus() == DeadlineStatus.UNFINISHED) {
+                    if ((nowDate.getDay() >= targetDate.getDay()
+                            && nowDate.getMonth() >= targetDate.getMonth()
+                            && nowDate.getYear() >= targetDate.getYear()) ||
+                            (targetDate.getDay() <= primerDate.getDay()
+                                    && targetDate.getMonth() <= primerDate.getMonth()
+                                    && targetDate.getYear() <= primerDate.getYear())) {
+
+                        VisionDto visionDto = event.getVision();
+                        Vision vision = new Vision(visionDto.getDay(), visionDto.getMonth(), visionDto.getYear(), visionDto.getGrouping());
+                        newList.add(new Event(event.getId(),
+                                event.getDay(),
+                                event.getMonth(),
+                                event.getYear(),
+                                vision,
+                                DeadlineStatus.ARRIVED));
+                    }
+                    else {
+                        ModelMapper modelMapper = new ModelMapper();
+                        Event unfinishedEvent = modelMapper.map(event, Event.class);
+                        newList.add(unfinishedEvent);
+                    }
+                } else {
+                    ModelMapper modelMapper = new ModelMapper();
+                    Event arrivedEvent = modelMapper.map(event, Event.class);
+                    newList.add(arrivedEvent);
                 }
             }
+            reloadDataStorage(newList);
         } catch (Exception exception) {
             log.info("Database is busy; It's okay =)");
         }
+    }
+
+    private boolean reloadDataStorage(List<Event> events) throws IOException {
+        File tempFile = new File("temp_viewDatabase.json");
+        File dbFile = eventService.getDbDirectory().toFile();
+        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+        for (Event event : events) {
+            String json = new ObjectMapper().writeValueAsString(event);
+            writer.write(json);
+            writer.newLine();
+        }
+        writer.close();
+        Files.deleteIfExists(eventService.getDbDirectory());
+        return tempFile.renameTo(dbFile);
     }
 }

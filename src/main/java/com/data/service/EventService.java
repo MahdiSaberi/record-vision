@@ -11,7 +11,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -52,14 +51,28 @@ public class EventService {
             save(event);
             return false;
         } else {
-            Path path = getDbDirectory();
             try {
-                String jsonEvent = mapper.writeValueAsString(event);
-                List<String> lines = Files.readAllLines(path, StandardCharsets.UTF_8);
-                lines.set(getLineNumberByEventId(id) - 1, jsonEvent);
-                Files.write(path, lines, StandardCharsets.UTF_8);
+                File file = getDbDirectory().toFile();
+                BufferedReader reader = new BufferedReader(new FileReader(file));
+                String line;
+                StringBuilder inputBuffer = new StringBuilder();
+                int lineNumber = 1;
+                while ((line = reader.readLine()) != null) {
+                    if (lineNumber == getLineNumberByEventId(id)) {
+                        inputBuffer.append(mapper.writeValueAsString(event)); // Replace with the new content
+                    } else {
+                        inputBuffer.append(line);
+                        inputBuffer.append('\n');
+                    }
+                    lineNumber++;
+                }
+                reader.close();
+                Files.deleteIfExists(getDbDirectory());
+                FileOutputStream fileOut = new FileOutputStream(getDbDirectory().toFile());
+                fileOut.write(inputBuffer.toString().getBytes());
+                fileOut.close();
                 return true;
-            }catch (IOException exception){
+            } catch (IOException e) {
                 return false;
             }
         }
@@ -173,11 +186,11 @@ public class EventService {
         return null;
     }
 
-    private Path getDbDirectory() {
+    public Path getDbDirectory() {
         return Path.of(tempDir, dbFileName);
     }
 
-    private String getTempDbDirectory() {
+    public String getTempDbDirectory() {
         Path path = Path.of(tempDir, "temp_" + dbFileName);
         return path.toString();
     }

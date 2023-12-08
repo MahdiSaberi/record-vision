@@ -1,5 +1,10 @@
 package com.data.model;
 
 public enum DeadlineStatus {
-    ARRIVED, UNFINISHED
+    ARRIVED("arrived"),
+    UNFINISHED("unfinished");
+
+    DeadlineStatus(String name){
+
+    }
 }
