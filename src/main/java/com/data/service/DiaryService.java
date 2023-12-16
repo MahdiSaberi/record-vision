@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @Slf4j
@@ -35,31 +36,45 @@ public class DiaryService {
         this.eventService = eventService;
     }
 
-    public Integer[] calculateGrouping(Integer eventId) throws IOException {
+    public Map<String, Integer> calculateGrouping(Integer eventId) throws IOException {
         Event event = eventService.getById(eventId);
         if (event.getDeadlineStatus() == DeadlineStatus.ARRIVED) {
-            return new Integer[]{0,0,0,0,0};
+            return Map.of("groupingNumber", 0,
+                    "groupingDay", 0,
+                    "daysToEndGrouping", 0,
+                    "daysToEndVision", 0,
+                    "goneDays", 0);
         }
         Vision vision = event.getVision();
         Integer grouping = vision.getGrouping();
         JalaliDate startDate = event.primerJalaliDate();
         JalaliDate nowDate = JalaliDateUtil.convertLocalToJalali(LocalDate.now());
         Integer goneDays = subtractionDates(startDate, nowDate);
-        if(grouping != 0) {
-            int numberOfGrouping = (goneDays / grouping) + 1;
-            int dayOfGrouping = goneDays % grouping;
-            int daysToEndOfGrouping = grouping - dayOfGrouping;
-            int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-            long daysGone = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysGone};
-        }else {
-            int numberOfGrouping = 1;
-            int dayOfGrouping = 0;
-            int daysToEndOfGrouping = 0;
-            int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-            long daysGone = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysGone};
+        int groupingNumber;
+        int groupingDay;
+        int daysToEndGrouping;
+        int daysToEndVision;
+        int daysGone;
+        if (grouping != 0) {
+            groupingNumber = (goneDays / grouping) + 1;
+            groupingDay = goneDays % grouping;
+            daysToEndGrouping = grouping - groupingDay;
+            daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
+            daysGone = (int) calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+//            return new Integer[]{groupingNumber, groupingDay, daysToEndGrouping, daysToEndVision, (int) daysGone};
+        } else {
+            groupingNumber = 1;
+            groupingDay = 0;
+            daysToEndGrouping = 0;
+            daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
+            daysGone = (int) calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+//            return new Integer[]{groupingNumber, groupingDay, daysToEndGrouping, daysToEndVision, (int) daysGone};
         }
+        return Map.of("groupingNumber", groupingNumber,
+                "groupingDay", groupingDay,
+                "daysToEndGrouping", daysToEndGrouping,
+                "daysToEndVision", daysToEndVision,
+                "goneDays", daysGone);
     }
 
     public int calculateRemainingDays(JalaliDate targetDate) {

@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
@@ -41,29 +42,14 @@ public class MainController {
         }
     }
 
-    @GetMapping("/now")
-    public ResponseEntity<String> getTimeNow() {
-        return ResponseEntity.ok(diaryService.getStringNowDate());
-    }
-
     @GetMapping("/goneDays")
     public ResponseEntity<Long> getGoneDays(@RequestParam String firstDate, @RequestParam String secondDate) {
         return ResponseEntity.ok(diaryService.calculateGoneDays(firstDate, secondDate));
     }
 
     @GetMapping("/calculate")
-    public ResponseEntity<String> calculate(@RequestParam Integer eventId) throws IOException {
-        Integer[] integers = diaryService.calculateGrouping(eventId);
-        return ResponseEntity.ok(
-                "شماره دسته بندی: " + integers[0] + "\n" +
-                        "روزشمار این دسته بندی: " + integers[1] + "\n" +
-                        " روز تا پایان این دسته بندی: " + integers[2] + "\n" +
-                        "روز تا چشم انداز: " + integers[3] + "\n" +
-                        "روز گذشته: " + integers[4]);
-    }
-
-    @GetMapping("/isLeapYear")
-    public ResponseEntity<Boolean> isLeapYear(@RequestParam String date) {
-        return ResponseEntity.ok(JalaliDateUtil.convertStringToJalali(date).isLeapYear());
+    public ResponseEntity<Map<String, Integer>> calculate(@RequestParam Integer eventId) throws IOException {
+        Map<String, Integer> calculatedMap = diaryService.calculateGrouping(eventId);
+        return ResponseEntity.ok(calculatedMap);
     }
 }
