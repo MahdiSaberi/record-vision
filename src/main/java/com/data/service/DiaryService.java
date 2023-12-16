@@ -37,6 +37,9 @@ public class DiaryService {
 
     public Integer[] calculateGrouping(Integer eventId) throws IOException {
         Event event = eventService.getById(eventId);
+        if (event.getDeadlineStatus() == DeadlineStatus.ARRIVED) {
+            return new Integer[]{0,0,0,0,0};
+        }
         Vision vision = event.getVision();
         Integer grouping = vision.getGrouping();
         JalaliDate startDate = event.primerJalaliDate();
@@ -47,15 +50,15 @@ public class DiaryService {
             int dayOfGrouping = goneDays % grouping;
             int daysToEndOfGrouping = grouping - dayOfGrouping;
             int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-            long daysLeft = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysLeft};
+            long daysGone = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysGone};
         }else {
             int numberOfGrouping = 1;
             int dayOfGrouping = 0;
             int daysToEndOfGrouping = 0;
             int remainingDays = calculateRemainingDays(vision.targetJalaliDate());
-            long daysLeft = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysLeft};
+            long daysGone = calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+            return new Integer[]{numberOfGrouping, dayOfGrouping, daysToEndOfGrouping, remainingDays, (int) daysGone};
         }
     }
 
@@ -154,7 +157,7 @@ public class DiaryService {
         }
     }
 
-    private boolean reloadDataStorage(List<Event> events) throws IOException {
+    private void reloadDataStorage(List<Event> events) throws IOException {
         File tempFile = new File("temp_viewDatabase.json");
         File dbFile = eventService.getDbDirectory().toFile();
         BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
@@ -165,6 +168,6 @@ public class DiaryService {
         }
         writer.close();
         Files.deleteIfExists(eventService.getDbDirectory());
-        return tempFile.renameTo(dbFile);
+        tempFile.renameTo(dbFile);
     }
 }

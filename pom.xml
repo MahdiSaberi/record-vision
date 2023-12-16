@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>com.data</groupId>
 	<artifactId>view</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>1.0.0</version>
 	<name>view</name>
 	<description>Spring boot View project</description>
 	<properties>
@@ -55,6 +55,7 @@
 	</dependencies>
 
 	<build>
+		<finalName>app</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
