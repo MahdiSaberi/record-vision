@@ -3,10 +3,13 @@ package com.data.service;
 import com.data.model.DeadlineStatus;
 import com.data.model.Event;
 import com.data.model.dto.EventDto;
+import com.data.model.ui.EventModel;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -127,39 +130,52 @@ public class EventService {
         return null;
     }
 
-    public boolean removeById(Integer id) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
+    public boolean removeById(Integer id)  {
         File tempFile = new File(getTempDbDirectory());
-        BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
-        String json;
-        while ((json = reader.readLine()) != null) {
-            EventDto event;
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
+            tempFile = new File(getTempDbDirectory());
+            BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile));
+            String json;
+            while ((json = reader.readLine()) != null) {
+                EventDto event;
+                try {
+                    event = readEventFromJson(json);
+                } catch (Exception exception) {
+                    event = new EventDto();
+                    event.setId(-1);
+                    System.out.println("null");
+                }
+                if (!Objects.equals(event.getId(), id)) {
+                    writer.write(json + "\n");
+                }
+            }
+            reader.close();
+            writer.close();
+            Files.deleteIfExists(getDbDirectory());
+            return tempFile.renameTo(getDbDirectory().toFile());
+        }catch (Exception exception){
+            log.error(exception.getMessage());
             try {
-                event = readEventFromJson(json);
-            } catch (Exception exception) {
-                event = new EventDto();
-                event.setId(-1);
-                System.out.println("null");
+                Files.deleteIfExists(getDbDirectory());
+            }catch (IOException ioException){
+                log.error(ioException.getMessage());
             }
-            if (!Objects.equals(event.getId(), id)) {
-                writer.write(json + "\n");
-            }
+            return tempFile.renameTo(getDbDirectory().toFile());
         }
-        reader.close();
-        writer.close();
-        Files.deleteIfExists(getDbDirectory());
-        return tempFile.renameTo(getDbDirectory().toFile());
     }
 
-    public List<EventDto> getAll() {
+    public List<EventModel> getAll() {
         try {
             BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
             String json;
-            List<EventDto> events = new ArrayList<>();
+//            List<EventDto> events = new ArrayList<>();
+            List<EventModel> events = new ArrayList<>();
             while ((json = reader.readLine()) != null) {
                 try {
-                    EventDto event = readEventFromJson(json);
-                    events.add(event);
+                    EventModel eventModel = new ModelMapper().map(readEventFromJson(json), EventModel.class);
+//                    EventDto event = readEventFromJson(json);
+                    events.add(eventModel);
                 } catch (Exception exception) {
                     System.out.println("null");
                 }
@@ -172,17 +188,21 @@ public class EventService {
         }
     }
 
-    public Event getById(Integer id) throws IOException {
-        BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
-        String json;
-        while ((json = reader.readLine()) != null) {
-            Event event = mapper.readValue(json, Event.class);
-            if (event.getId() == id) {
-                reader.close();
-                return event;
+    public Event getById(Integer id) {
+        try {
+            BufferedReader reader = new BufferedReader(new FileReader(getDbDirectory().toFile()));
+            String json;
+            while ((json = reader.readLine()) != null) {
+                Event event = mapper.readValue(json, Event.class);
+                if (event.getId() == id) {
+                    reader.close();
+                    return event;
+                }
             }
+            reader.close();
+        } catch (Exception exception) {
+            return null;
         }
-        reader.close();
         return null;
     }
 

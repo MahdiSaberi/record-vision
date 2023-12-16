@@ -6,9 +6,11 @@ import com.data.model.JalaliDateModel;
 import com.data.model.Vision;
 import com.data.model.dto.EventDto;
 import com.data.model.dto.VisionDto;
+import com.data.model.ui.EventModel;
 import com.data.util.JalaliDateUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,16 +29,12 @@ import java.util.Map;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DiaryService {
 
     private final EventService eventService;
 
-    @Autowired
-    public DiaryService(EventService eventService) {
-        this.eventService = eventService;
-    }
-
-    public Map<String, Integer> calculateGrouping(Integer eventId) throws IOException {
+    public Map<String, Integer> calculate(Integer eventId) {
         Event event = eventService.getById(eventId);
         if (event.getDeadlineStatus() == DeadlineStatus.ARRIVED) {
             return Map.of("groupingNumber", 0,
@@ -133,9 +131,9 @@ public class DiaryService {
     public void checkDeadline() {
         try {
             log.info("Checking Deadlines");
-            List<EventDto> events = eventService.getAll();
+            List<EventModel> events = eventService.getAll();
             List<Event> newList = new ArrayList<>();
-            for (EventDto event : events) {
+            for (EventModel event : events) {
                 JalaliDateModel primerDate = JalaliDateUtil.getModel(event.primerJalaliDate());
                 JalaliDateModel nowDate = JalaliDateUtil.getModel(JalaliDateUtil.convertLocalToJalali(LocalDate.now()));
                 JalaliDateModel targetDate = JalaliDateUtil.getModel(event.getVision().targetJalaliDate());
@@ -184,5 +182,10 @@ public class DiaryService {
         writer.close();
         Files.deleteIfExists(eventService.getDbDirectory());
         tempFile.renameTo(dbFile);
+    }
+
+    public int calculateByKey(String key, Integer id) {
+        Map<String, Integer> calculate = calculate(id);
+        return calculate.get(key);
     }
 }
