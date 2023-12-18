@@ -1,7 +1,7 @@
 package com.data.controller;
 
+import com.data.model.DeadlineStatus;
 import com.data.model.Event;
-import com.data.model.StatusMode;
 import com.data.model.ui.EventModel;
 import com.data.service.DiaryService;
 import com.data.service.EventService;
@@ -33,9 +33,9 @@ public class MainController {
     }
 
     @GetMapping("/getEvents")
-    public ResponseEntity<List<EventModel>> getEvents(@RequestParam StatusMode status) {
+    public ResponseEntity<List<EventModel>> getEvents(@RequestParam(name = "status") DeadlineStatus status) {
         List<EventModel> events = eventService.getAll();
-        if (!status.name().equals(StatusMode.ALL.name())) {
+        if (!status.name().equals(DeadlineStatus.ALL.name())) {
             events = events
                     .stream()
                     .filter(event -> event.getDeadlineStatus().name().equals(status.name()))
@@ -60,7 +60,7 @@ public class MainController {
         return ResponseEntity.ok(eventModel);
     }
 
-    private void doCalculate(EventModel eventModel){
+    private void doCalculate(EventModel eventModel) {
         eventModel.setGroupingNumber(diaryService.calculateByKey("groupingNumber", eventModel.getId()));
         eventModel.setGroupingDay(diaryService.calculateByKey("groupingDay", eventModel.getId()));
         eventModel.setDaysToEndGrouping(diaryService.calculateByKey("daysToEndGrouping", eventModel.getId()));
