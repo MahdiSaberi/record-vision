@@ -92,6 +92,9 @@ public class DiaryService {
     private Integer subtractionDates(JalaliDate startJalaliDate, JalaliDate secondJalaliDate) {
         JalaliDateModel startJalaliDateModel = JalaliDateUtil.getModel(startJalaliDate);
         JalaliDateModel stopJalaliDateModel = JalaliDateUtil.getModel(secondJalaliDate);
+        if (JalaliDateUtil.isGreater(startJalaliDateModel, stopJalaliDateModel)) {
+            return 0;
+        }
         //iterate
         int startDay = startJalaliDateModel.getDay();
         int startMonth = startJalaliDateModel.getMonth();
@@ -101,7 +104,7 @@ public class DiaryService {
         int stopMonth = stopJalaliDateModel.getMonth();
         int stopYear = stopJalaliDateModel.getYear();
         int goneDays = 0;
-        if(startDay == stopDay && startMonth == stopMonth && startYear == stopYear) {
+        if (startDay == stopDay && startMonth == stopMonth && startYear == stopYear) {
             return goneDays;
         }
         do {
