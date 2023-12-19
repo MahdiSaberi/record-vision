@@ -13,10 +13,12 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @Slf4j
 @RequiredArgsConstructor
+@CrossOrigin
 public class MainController {
 
     private final DiaryService diaryService;
@@ -61,10 +63,11 @@ public class MainController {
     }
 
     private void doCalculate(EventModel eventModel) {
-        eventModel.setGroupingNumber(diaryService.calculateByKey("groupingNumber", eventModel.getId()));
-        eventModel.setGroupingDay(diaryService.calculateByKey("groupingDay", eventModel.getId()));
-        eventModel.setDaysToEndGrouping(diaryService.calculateByKey("daysToEndGrouping", eventModel.getId()));
-        eventModel.setDaysToEndVision(diaryService.calculateByKey("daysToEndVision", eventModel.getId()));
-        eventModel.setGoneDays(diaryService.calculateByKey("goneDays", eventModel.getId()));
+        Map<String, Integer> calculatedMap = diaryService.calculate(eventModel.getId());
+        eventModel.setGroupingNumber(calculatedMap.get("groupingNumber"));
+        eventModel.setGroupingDay(calculatedMap.get("groupingDay"));
+        eventModel.setDaysToEndGrouping(calculatedMap.get("daysToEndGrouping"));
+        eventModel.setDaysToEndVision(calculatedMap.get("daysToEndVision"));
+        eventModel.setGoneDays(calculatedMap.get("goneDays"));
     }
 }

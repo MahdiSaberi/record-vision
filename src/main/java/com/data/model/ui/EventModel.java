@@ -29,14 +29,6 @@ public class EventModel {
     private int daysToEndVision;
     private int goneDays;
 
-    public EventModel(int groupingNumber, int groupingDay, int daysToEndGrouping, int daysToEndVision, int goneDays) {
-        this.groupingNumber = groupingNumber;
-        this.groupingDay = groupingDay;
-        this.daysToEndGrouping = daysToEndGrouping;
-        this.daysToEndVision = daysToEndVision;
-        this.goneDays = goneDays;
-    }
-
     public JalaliDate primerJalaliDate() {
         return new JalaliDate(year, month, day);
     }

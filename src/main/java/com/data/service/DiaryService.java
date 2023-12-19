@@ -4,7 +4,6 @@ import com.data.model.DeadlineStatus;
 import com.data.model.Event;
 import com.data.model.JalaliDateModel;
 import com.data.model.Vision;
-import com.data.model.dto.EventDto;
 import com.data.model.dto.VisionDto;
 import com.data.model.ui.EventModel;
 import com.data.util.JalaliDateUtil;
@@ -13,7 +12,6 @@ import com.github.eloyzone.jalalicalendar.JalaliDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -57,17 +55,15 @@ public class DiaryService {
             groupingNumber = (goneDays / grouping) + 1;
             groupingDay = goneDays % grouping;
             daysToEndGrouping = grouping - groupingDay;
-            daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
-            daysGone = (int) calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-//            return new Integer[]{groupingNumber, groupingDay, daysToEndGrouping, daysToEndVision, (int) daysGone};
         } else {
             groupingNumber = 1;
             groupingDay = 0;
             daysToEndGrouping = 0;
-            daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
-            daysGone = (int) calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-//            return new Integer[]{groupingNumber, groupingDay, daysToEndGrouping, daysToEndVision, (int) daysGone};
         }
+        daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
+        daysGone = (int) calculateGoneDays(
+                event.primerStringDate(),
+                JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
         return Map.of("groupingNumber", groupingNumber,
                 "groupingDay", groupingDay,
                 "daysToEndGrouping", daysToEndGrouping,
@@ -105,6 +101,9 @@ public class DiaryService {
         int stopMonth = stopJalaliDateModel.getMonth();
         int stopYear = stopJalaliDateModel.getYear();
         int goneDays = 0;
+        if(startDay == stopDay && startMonth == stopMonth && startYear == stopYear) {
+            return goneDays;
+        }
         do {
             startDay++;
             goneDays++;
