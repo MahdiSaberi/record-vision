@@ -34,22 +34,6 @@ public abstract class JalaliDateUtil {
         return getModel(convertJalaliToString(jalaliDate));
     }
 
-    public static boolean isGreater(JalaliDateModel is, JalaliDateModel than) {
-        if (is.getYear() > than.getYear()) {
-            return true;
-        } else {
-            if (is.getYear() == than.getYear() && (is.getMonth() > than.getMonth())) {
-                return true;
-            }
-            else {
-                if ((is.getYear() == than.getYear()) && (is.getMonth() == than.getMonth()) && is.getDay() > than.getDay()) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
     public static JalaliDateModel getModel(String stringJalaliDate) {
         String[] jalaliArray = stringJalaliDate.split(" ");
         int year = Integer.parseInt(jalaliArray[2]);
