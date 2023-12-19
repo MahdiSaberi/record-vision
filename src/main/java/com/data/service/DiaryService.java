@@ -91,7 +91,7 @@ public class DiaryService {
         int stopMonth = stopJalaliDateModel.getMonth();
         int stopYear = stopJalaliDateModel.getYear();
         int goneDays = 0;
-        if (startJalaliDateModel.equals(stopJalaliDateModel) || startJalaliDateModel.isGreater(stopJalaliDateModel)) {
+        if (startJalaliDateModel.equals(stopJalaliDateModel) || startJalaliDateModel.isGreaterThan(stopJalaliDateModel)) {
             return goneDays;
         }
         do {

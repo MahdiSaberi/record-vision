@@ -25,7 +25,7 @@ public class JalaliDateModel {
         }
     }
 
-    public boolean isGreater(JalaliDateModel jalaliDateModel) {
+    public boolean isGreaterThan(JalaliDateModel jalaliDateModel) {
         if (this.year > jalaliDateModel.getYear()) {
             return true;
         } else {
