@@ -172,6 +172,7 @@ public class DiaryService {
         }
     }
 
+
     private void reloadDataStorage(List<Event> events) throws IOException {
         File tempFile = new File("temp_viewDatabase.json");
         File dbFile = eventService.getDbDirectory().toFile();
