@@ -35,11 +35,7 @@ public class DiaryService {
     public Map<String, Integer> calculate(Integer eventId) {
         Event event = eventService.getById(eventId);
         if (event.getDeadlineStatus() == DeadlineStatus.ARRIVED) {
-            return Map.of("groupingNumber", 0,
-                    "groupingDay", 0,
-                    "daysToEndGrouping", 0,
-                    "daysToEndVision", 0,
-                    "goneDays", 0);
+            return Map.of("groupingNumber", 0, "groupingDay", 0, "daysToEndGrouping", 0, "daysToEndVision", 0, "goneDays", 0);
         }
         Vision vision = event.getVision();
         Integer grouping = vision.getGrouping();
@@ -61,14 +57,8 @@ public class DiaryService {
             daysToEndGrouping = 0;
         }
         daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
-        daysGone = (int) calculateGoneDays(
-                event.primerStringDate(),
-                JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-        return Map.of("groupingNumber", groupingNumber,
-                "groupingDay", groupingDay,
-                "daysToEndGrouping", daysToEndGrouping,
-                "daysToEndVision", daysToEndVision,
-                "goneDays", daysGone);
+        daysGone = (int) calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
+        return Map.of("groupingNumber", groupingNumber, "groupingDay", groupingDay, "daysToEndGrouping", daysToEndGrouping, "daysToEndVision", daysToEndVision, "goneDays", daysGone);
     }
 
     public int calculateRemainingDays(JalaliDate targetDate) {
@@ -101,16 +91,13 @@ public class DiaryService {
         int stopMonth = stopJalaliDateModel.getMonth();
         int stopYear = stopJalaliDateModel.getYear();
         int goneDays = 0;
-        if ((startDay == stopDay && startMonth == stopMonth && startYear == stopYear) ||
-                JalaliDateUtil.isGreater(startJalaliDateModel, stopJalaliDateModel)) {
+        if (startJalaliDateModel.equals(stopJalaliDateModel) || startJalaliDateModel.isGreaterThan(stopJalaliDateModel)) {
             return goneDays;
         }
         do {
             startDay++;
             goneDays++;
-            if ((startDay == 32 && (startMonth == 1 || startMonth == 2 || startMonth == 3 || startMonth == 4 || startMonth == 5 || startMonth == 6))
-                    || startDay == 31 && (startMonth == 7 || startMonth == 8 || startMonth == 9 || startMonth == 10 || startMonth == 11 ||
-                    (startMonth == 12 && new JalaliDate(startYear, 1, 1).isLeapYear()))) {
+            if ((startDay == 32 && (startMonth == 1 || startMonth == 2 || startMonth == 3 || startMonth == 4 || startMonth == 5 || startMonth == 6)) || startDay == 31 && (startMonth == 7 || startMonth == 8 || startMonth == 9 || startMonth == 10 || startMonth == 11 || (startMonth == 12 && new JalaliDate(startYear, 1, 1).isLeapYear()))) {
                 startDay = 1;
                 if (startMonth != 12) {
                     startMonth++;
@@ -138,21 +125,11 @@ public class DiaryService {
                 JalaliDateModel nowDate = JalaliDateUtil.getModel(JalaliDateUtil.convertLocalToJalali(LocalDate.now()));
                 JalaliDateModel targetDate = JalaliDateUtil.getModel(event.getVision().targetJalaliDate());
                 if (event.getDeadlineStatus() == DeadlineStatus.UNFINISHED) {
-                    if ((nowDate.getDay() >= targetDate.getDay()
-                            && nowDate.getMonth() >= targetDate.getMonth()
-                            && nowDate.getYear() >= targetDate.getYear()) ||
-                            (targetDate.getDay() <= primerDate.getDay()
-                                    && targetDate.getMonth() <= primerDate.getMonth()
-                                    && targetDate.getYear() <= primerDate.getYear())) {
+                    if ((nowDate.getDay() >= targetDate.getDay() && nowDate.getMonth() >= targetDate.getMonth() && nowDate.getYear() >= targetDate.getYear()) || (targetDate.getDay() <= primerDate.getDay() && targetDate.getMonth() <= primerDate.getMonth() && targetDate.getYear() <= primerDate.getYear())) {
 
                         VisionDto visionDto = event.getVision();
                         Vision vision = new Vision(visionDto.getDay(), visionDto.getMonth(), visionDto.getYear(), visionDto.getGrouping());
-                        newList.add(new Event(event.getId(),
-                                event.getDay(),
-                                event.getMonth(),
-                                event.getYear(),
-                                vision,
-                                DeadlineStatus.ARRIVED));
+                        newList.add(new Event(event.getId(), event.getDay(), event.getMonth(), event.getYear(), vision, DeadlineStatus.ARRIVED));
                     } else {
                         ModelMapper modelMapper = new ModelMapper();
                         Event unfinishedEvent = modelMapper.map(event, Event.class);
