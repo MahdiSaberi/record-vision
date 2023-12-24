@@ -1,5 +1,6 @@
 package com.data.model;
 
+import com.data.util.JalaliDateUtil;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
 import com.github.eloyzone.jalalicalendar.JalaliDateFormatter;
 import lombok.AllArgsConstructor;
@@ -27,5 +28,9 @@ public class Vision {
 
     public JalaliDate targetJalaliDate() {
         return new JalaliDate(year, month, day);
+    }
+
+    public JalaliDateModel targetJalaliDateModel(){
+        return JalaliDateUtil.getModel(targetJalaliDate());
     }
 }

@@ -35,7 +35,11 @@ public class DiaryService {
     public Map<String, Integer> calculate(Integer eventId) {
         Event event = eventService.getById(eventId);
         if (event.getDeadlineStatus() == DeadlineStatus.ARRIVED) {
-            return Map.of("groupingNumber", 0, "groupingDay", 0, "daysToEndGrouping", 0, "daysToEndVision", 0, "goneDays", 0);
+            return Map.of("groupingNumber", 0,
+                    "groupingDay", 0,
+                    "daysToEndGrouping", 0,
+                    "daysToEndVision", 0,
+                    "goneDays", 0);
         }
         Vision vision = event.getVision();
         Integer grouping = vision.getGrouping();
@@ -58,7 +62,11 @@ public class DiaryService {
         }
         daysToEndVision = calculateRemainingDays(vision.targetJalaliDate());
         daysGone = (int) calculateGoneDays(event.primerStringDate(), JalaliDateUtil.convertJalaliToString(JalaliDateUtil.convertLocalToJalali(LocalDate.now())));
-        return Map.of("groupingNumber", groupingNumber, "groupingDay", groupingDay, "daysToEndGrouping", daysToEndGrouping, "daysToEndVision", daysToEndVision, "goneDays", daysGone);
+        return Map.of("groupingNumber", groupingNumber,
+                "groupingDay", groupingDay,
+                "daysToEndGrouping", daysToEndGrouping,
+                "daysToEndVision", daysToEndVision,
+                "goneDays", daysGone);
     }
 
     public int calculateRemainingDays(JalaliDate targetDate) {
@@ -125,8 +133,8 @@ public class DiaryService {
                 JalaliDateModel nowDate = JalaliDateUtil.getModel(JalaliDateUtil.convertLocalToJalali(LocalDate.now()));
                 JalaliDateModel targetDate = JalaliDateUtil.getModel(event.getVision().targetJalaliDate());
                 if (event.getDeadlineStatus() == DeadlineStatus.UNFINISHED) {
-                    if ((nowDate.getDay() >= targetDate.getDay() && nowDate.getMonth() >= targetDate.getMonth() && nowDate.getYear() >= targetDate.getYear()) || (targetDate.getDay() <= primerDate.getDay() && targetDate.getMonth() <= primerDate.getMonth() && targetDate.getYear() <= primerDate.getYear())) {
-
+                    if ((nowDate.equals(targetDate) || nowDate.isGreaterThan(targetDate)) ||
+                            (primerDate.equals(targetDate) || primerDate.isGreaterThan(targetDate))) {
                         VisionDto visionDto = event.getVision();
                         Vision vision = new Vision(visionDto.getDay(), visionDto.getMonth(), visionDto.getYear(), visionDto.getGrouping());
                         newList.add(new Event(event.getId(), event.getDay(), event.getMonth(), event.getYear(), vision, DeadlineStatus.ARRIVED));

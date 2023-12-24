@@ -1,5 +1,6 @@
 package com.data.model;
 
+import com.data.util.JalaliDateUtil;
 import com.github.eloyzone.jalalicalendar.DateConverter;
 import com.github.eloyzone.jalalicalendar.JalaliDate;
 import com.github.eloyzone.jalalicalendar.JalaliDateFormatter;
@@ -48,5 +49,9 @@ public class Event {
             jalaliDate = new JalaliDate(year, month, day);
         }
         return jalaliDate;
+    }
+
+    public JalaliDateModel primerJalaliDateModel(){
+        return JalaliDateUtil.getModel(primerJalaliDate());
     }
 }

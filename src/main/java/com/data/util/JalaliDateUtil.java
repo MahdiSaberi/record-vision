@@ -41,4 +41,8 @@ public abstract class JalaliDateUtil {
         int day = Integer.parseInt(jalaliArray[0]);
         return new JalaliDateModel(year, month, day);
     }
+
+    public static JalaliDateModel now() {
+        return getModel(convertLocalToJalali(LocalDate.now()));
+    }
 }
