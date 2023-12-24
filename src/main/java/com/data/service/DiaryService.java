@@ -137,7 +137,7 @@ public class DiaryService {
                             (primerDate.equals(targetDate) || primerDate.isGreaterThan(targetDate))) {
                         VisionDto visionDto = event.getVision();
                         Vision vision = new Vision(visionDto.getDay(), visionDto.getMonth(), visionDto.getYear(), visionDto.getGrouping());
-                        newList.add(new Event(event.getId(), event.getDay(), event.getMonth(), event.getYear(), vision, DeadlineStatus.ARRIVED));
+                        newList.add(new Event(event.getId(),event.getName(), event.getDay(), event.getMonth(), event.getYear(), vision, DeadlineStatus.ARRIVED));
                     } else {
                         ModelMapper modelMapper = new ModelMapper();
                         Event unfinishedEvent = modelMapper.map(event, Event.class);

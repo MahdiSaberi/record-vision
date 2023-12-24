@@ -19,6 +19,7 @@ import java.time.LocalDate;
 public class Event {
     @Schema(hidden = true)
     private int id;
+    private String name;
     // primer date
     private Integer day;
     private Integer month;

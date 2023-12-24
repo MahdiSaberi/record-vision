@@ -16,6 +16,7 @@ import lombok.Setter;
 public class EventModel {
     @Schema(hidden = true)
     private int id;
+    private String name;
     // primer date
     private Integer day;
     private Integer month;
