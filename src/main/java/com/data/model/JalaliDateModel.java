@@ -17,9 +17,9 @@ public class JalaliDateModel {
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof JalaliDateModel jalaliDateModel) {
-            return this.year == jalaliDateModel.getYear()
-                    && this.month == jalaliDateModel.getMonth()
-                    && this.day == jalaliDateModel.getDay();
+            return this.year == jalaliDateModel.year
+                    && this.month == jalaliDateModel.month
+                    && this.day == jalaliDateModel.day;
         } else {
             return false;
         }

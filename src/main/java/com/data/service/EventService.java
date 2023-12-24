@@ -2,8 +2,10 @@ package com.data.service;
 
 import com.data.model.DeadlineStatus;
 import com.data.model.Event;
+import com.data.model.JalaliDateModel;
 import com.data.model.dto.EventDto;
 import com.data.model.ui.EventModel;
+import com.data.util.JalaliDateUtil;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -32,7 +35,12 @@ public class EventService {
     public boolean save(Event event) {
         try {
             event.setId(generateId());
-            event.setDeadlineStatus(DeadlineStatus.UNFINISHED);
+            JalaliDateModel primer = event.primerJalaliDateModel();
+            JalaliDateModel target = event.getVision().targetJalaliDateModel();
+            if ((primer.equals(target)) || (JalaliDateUtil.now().equals(target)) || (JalaliDateUtil.now().isGreaterThan(target))) {
+                event.setDeadlineStatus(DeadlineStatus.ARRIVED);
+            }
+            else event.setDeadlineStatus(DeadlineStatus.UNFINISHED);
             String eventJson = mapper.writeValueAsString(event);
             FileWriter fileWriter;
             fileWriter = new FileWriter(getDbDirectory().toFile(), true);
