@@ -62,6 +62,11 @@ public class MainController {
         return ResponseEntity.ok(eventModel);
     }
 
+    @PutMapping("/update")
+    public ResponseEntity<Boolean> update(@RequestBody Event event){
+        return ResponseEntity.ok(eventService.update(event));
+    }
+
     private void doCalculate(EventModel eventModel) {
         Map<String, Integer> calculatedMap = diaryService.calculate(eventModel.getId());
         eventModel.setGroupingNumber(calculatedMap.get("groupingNumber"));
