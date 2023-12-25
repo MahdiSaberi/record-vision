@@ -2,6 +2,7 @@ package com.data.controller;
 
 import com.data.model.DeadlineStatus;
 import com.data.model.Event;
+import com.data.model.dto.EventUpdateDto;
 import com.data.model.ui.EventModel;
 import com.data.service.DiaryService;
 import com.data.service.EventService;
@@ -36,6 +37,7 @@ public class MainController {
 
     @GetMapping("/getEvents")
     public ResponseEntity<List<EventModel>> getEvents(@RequestParam(name = "status") DeadlineStatus status) {
+        diaryService.checkDeadline();
         List<EventModel> events = eventService.getAll();
         if (!status.name().equals(DeadlineStatus.ALL.name())) {
             events = events
@@ -63,7 +65,10 @@ public class MainController {
     }
 
     @PutMapping("/update")
-    public ResponseEntity<Boolean> update(@RequestBody Event event){
+    public ResponseEntity<Boolean> update(@RequestBody EventUpdateDto eventUpdateDto) {
+        DeadlineStatus deadlineStatus = eventService.getById(eventUpdateDto.getId()).getDeadlineStatus();
+        eventUpdateDto.setDeadlineStatus(deadlineStatus);
+        Event event = new ModelMapper().map(eventUpdateDto,Event.class);
         return ResponseEntity.ok(eventService.update(event));
     }
 

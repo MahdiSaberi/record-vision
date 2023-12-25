@@ -12,6 +12,7 @@ import com.github.eloyzone.jalalicalendar.JalaliDate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -123,6 +124,7 @@ public class DiaryService {
     }
 
     @Scheduled(fixedRate = 60000)
+    @Async
     public void checkDeadline() {
         try {
             log.info("Checking Deadlines");

@@ -67,14 +67,14 @@ public class EventService {
                 BufferedReader reader = new BufferedReader(new FileReader(file));
                 String line;
                 StringBuilder inputBuffer = new StringBuilder();
-                int lineNumber = 1;
+                int lineNumber = 0;
                 while ((line = reader.readLine()) != null) {
                     if (lineNumber == getLineNumberByEventId(id)) {
                         inputBuffer.append(mapper.writeValueAsString(event)); // Replace with the new content
                     } else {
                         inputBuffer.append(line);
-                        inputBuffer.append('\n');
                     }
+                    inputBuffer.append('\n');
                     lineNumber++;
                 }
                 reader.close();
@@ -92,13 +92,13 @@ public class EventService {
     private int getLineNumberByEventId(Integer eventId) {
         String searchWord = "\"id\":" + eventId + ",";
         int lineCount = 0;
-
         try (BufferedReader br = new BufferedReader(new FileReader(getDbDirectory().toFile()))) {
             String line;
             while ((line = br.readLine()) != null) {
                 if (line.contains(searchWord)) {
-                    lineCount++;
+                    break;
                 }
+                lineCount++;
             }
         } catch (IOException e) {
             e.printStackTrace();
