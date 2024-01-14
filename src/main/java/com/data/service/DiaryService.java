@@ -123,7 +123,6 @@ public class DiaryService {
         return goneDays;
     }
 
-    @Scheduled(fixedRate = 60000)
     @Async
     public void checkDeadline() {
         try {
